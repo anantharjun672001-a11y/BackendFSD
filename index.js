@@ -8,10 +8,11 @@ dotenv.config();
 
 const app = express();
 
-app.use("/api/auth", authRoutes);
 
 app.use(cors());
 app.use(express.json());
+
+app.use("/api/auth", authRoutes);
 
 //DB Connect
 mongoose.connect(process.env.MONGODB_URL)
