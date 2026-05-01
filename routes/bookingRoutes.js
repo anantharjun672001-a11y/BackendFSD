@@ -1,5 +1,5 @@
 import express from "express";
-import Booking from "../models/Booking.js";
+import Booking from "../models/Bookings.js";
 import { verifyToken, allowRoles } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
