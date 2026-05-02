@@ -16,6 +16,11 @@ const bookingSchema = new mongoose.Schema({
     enum: ["pending", "approved", "rejected"],
     default: "pending", 
   },
+  paymentStatus: {
+    type: String,
+    enum: ["pending", "paid"],
+    default: "pending" ,
+  },
 });
 
 export default mongoose.model("Booking", bookingSchema);
