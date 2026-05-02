@@ -43,4 +43,18 @@ router.put("/:id", verifyToken, allowRoles("admin"), async (req, res) => {
   res.json(booking);
 });
 
+// GET booked dates (approved bookings only)
+router.get("/booked-dates", async (req, res) => {
+  try {
+    const bookings = await Booking.find({ status: "approved" });
+
+    const dates = bookings.map(b => b.date);
+
+    res.json(dates);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching dates" });
+  }
+});
+
+
 export default router;
