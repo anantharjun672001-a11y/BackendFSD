@@ -6,6 +6,8 @@ import authRoutes from "./routes/authRoutes.js";
 import testRoutes from "./routes/testRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
 import serviceRoutes from "./routes/serviceRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
+
 
 dotenv.config();
 
@@ -19,6 +21,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/test", testRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/services", serviceRoutes);
+app.use("/api/payment", paymentRoutes);
 
 //DB Connect
 mongoose.connect(process.env.MONGODB_URL)
