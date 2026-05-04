@@ -15,6 +15,30 @@ export const getServices = async (req, res) => {
   res.json(services);
 };
 
+
+
+// UPDATE SERVICE
+export const updateService = async (req, res) => {
+  try {
+    const { name, price } = req.body;
+
+    const updated = await Service.findByIdAndUpdate(
+      req.params.id,
+      { name, price },
+      { new: true } // updated value return
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: "Service not found" });
+    }
+
+    res.json(updated);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Update failed" });
+  }
+};
+
 // DELETE
 export const deleteService = async (req, res) => {
   await Service.findByIdAndDelete(req.params.id);

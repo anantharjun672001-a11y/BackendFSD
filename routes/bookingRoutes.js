@@ -23,8 +23,13 @@ router.post("/", verifyToken, async (req, res) => {
 });
 
 // MY BOOKINGS
+
 router.get("/my", verifyToken, async (req, res) => {
-  const bookings = await Booking.find({ userId: req.user.id });
+  const bookings = await Booking.find({
+    userId: req.user.id,
+    status: { $ne: "cancelled" }, 
+  });
+
   res.json(bookings);
 });
 
