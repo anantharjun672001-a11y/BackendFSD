@@ -1,10 +1,12 @@
 import express from "express";
 import Booking from "../models/Bookings.js";
+import User from "../models/User.js";
 import { verifyToken, allowRoles } from "../middleware/authMiddleware.js";
+import { sendMail } from "../utils/sendMail.js";
 
 const router = express.Router();
 
-// Create booking (user)
+// CREATE BOOKING
 router.post("/", verifyToken, async (req, res) => {
   try {
     const booking = await Booking.create({
@@ -16,45 +18,61 @@ router.post("/", verifyToken, async (req, res) => {
 
     res.json(booking);
   } catch (err) {
-    console.log(err);
     res.status(500).json({ message: "Error creating booking" });
   }
 });
-// My bookings
+
+// MY BOOKINGS
 router.get("/my", verifyToken, async (req, res) => {
   const bookings = await Booking.find({ userId: req.user.id });
   res.json(bookings);
 });
 
-// Admin view all
+// ADMIN VIEW
 router.get("/", verifyToken, allowRoles("admin"), async (req, res) => {
   const bookings = await Booking.find();
   res.json(bookings);
 });
 
-// Admin update status
+// 🔥 ADMIN UPDATE STATUS + MAIL
 router.put("/:id", verifyToken, allowRoles("admin"), async (req, res) => {
-  const booking = await Booking.findByIdAndUpdate(
-    req.params.id,
-    { status: req.body.status },
-    { new: true }
-  );
-
-  res.json(booking);
-});
-
-// GET booked dates (approved bookings only)
-router.get("/booked-dates", async (req, res) => {
   try {
-    const bookings = await Booking.find({ status: "approved" });
+    const booking = await Booking.findByIdAndUpdate(
+      req.params.id,
+      { status: req.body.status },
+      { new: true }
+    );
 
-    const dates = bookings.map(b => b.date);
+    const user = await User.findById(booking.userId);
 
-    res.json(dates);
+    if (req.body.status === "approved") {
+      await sendMail(
+        user.email,
+        "Booking Approved ",
+        `Your booking for ${booking.service} is approved. Please complete payment.`
+      );
+    }
+
+    if (req.body.status === "rejected") {
+      await sendMail(
+        user.email,
+        "Booking Rejected ",
+        `Your booking for ${booking.service} is rejected.`
+      );
+    }
+
+    res.json(booking);
   } catch (err) {
-    res.status(500).json({ message: "Error fetching dates" });
+    console.log(err);
+    res.status(500).json({ message: "Update failed" });
   }
 });
 
+// BOOKED DATES
+router.get("/booked-dates", async (req, res) => {
+  const bookings = await Booking.find({ status: "approved" });
+  const dates = bookings.map((b) => b.date);
+  res.json(dates);
+});
 
 export default router;
