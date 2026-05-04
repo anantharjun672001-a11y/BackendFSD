@@ -100,4 +100,34 @@ router.put("/payment/:id", verifyToken, async (req, res) => {
   res.json(booking);
 });
 
+
+// CANCEL BOOKING (USER)
+router.put("/cancel/:id", verifyToken, async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id);
+
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    // prevent cancelling paid booking
+    if (booking.paymentStatus === "paid") {
+      return res.status(400).json({ message: "Cannot cancel paid booking" });
+    }
+
+    //  prevent cancelling already rejected
+    if (booking.status === "rejected") {
+      return res.status(400).json({ message: "Already rejected" });
+    }
+
+    booking.status = "cancelled";
+    await booking.save();
+
+    res.json({ message: "Booking cancelled" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Cancel failed" });
+  }
+});
+
 export default router;
