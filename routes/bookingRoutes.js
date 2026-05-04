@@ -75,4 +75,29 @@ router.get("/booked-dates", async (req, res) => {
   res.json(dates);
 });
 
+
+router.put("/payment/:id", verifyToken, async (req, res) => {
+  console.log("PAYMENT ROUTE HIT");
+
+  const booking = await Booking.findByIdAndUpdate(
+    req.params.id,
+    { paymentStatus: "paid" },
+    { new: true }
+  );
+
+  console.log("UPDATED BOOKING:", booking);
+
+  const user = await User.findById(booking.userId);
+
+  console.log("USER EMAIL:", user.email);
+
+  await sendMail(
+    user.email,
+    "Payment Successful ",
+    `Your payment for ${booking.service} is completed successfully.`
+  );
+
+  res.json(booking);
+});
+
 export default router;
