@@ -16,7 +16,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "https://frontend-fsd-nu.vercel.app",
+    origin: ["https://frontend-fsd-nu.vercel.app", "http://localhost:5173/"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
