@@ -9,14 +9,25 @@ const router = express.Router();
 // CREATE BOOKING
 router.post("/", verifyToken, async (req, res) => {
   try {
+    const { service, price, date } = req.body;
+
+    if (!service || !price || !date) {
+      return res.status(400).json({ message: "All fields required" });
+    }
+
+    if (price <= 0) {
+      return res.status(400).json({ message: "Invalid price" });
+    }
+
     const booking = await Booking.create({
       userId: req.user.id,
-      service: req.body.service,
-      price: req.body.price,
-      date: req.body.date,
+      service,
+      price,
+      date,
     });
 
     res.json(booking);
+
   } catch (err) {
     res.status(500).json({ message: "Error creating booking" });
   }

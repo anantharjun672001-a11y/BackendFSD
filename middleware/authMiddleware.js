@@ -4,7 +4,7 @@ export const verifyToken = (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
-    if (!authHeader) {
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({ message: "No token provided" });
     }
 
@@ -19,6 +19,10 @@ export const verifyToken = (req, res, next) => {
 
     next();
   } catch (error) {
+    if (error.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "Token expired" });
+    }
+
     return res.status(401).json({ message: "Invalid token" });
   }
 };
@@ -26,9 +30,14 @@ export const verifyToken = (req, res, next) => {
 
 export const allowRoles = (...roles) => {
   return (req, res, next) => {
-    if (!req.user || !roles.includes(req.user.role)) {
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    if (!roles.includes(req.user.role)) {
       return res.status(403).json({ message: "Access denied" });
     }
+
     next();
   };
 };
